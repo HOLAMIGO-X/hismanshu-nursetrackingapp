@@ -266,18 +266,19 @@ input[type="file"] {
 /* Data Tables & Layout */
 .dashboard-content {
     display: grid;
-    grid-template-columns: 1fr; /* Default to single column */
+    grid-template-columns: 1fr; /* ALWAYS single column to prevent horizontal overflow */
     gap: 25px;
 }
 
-@media (min-width: 900px) {
+/* Removed media query for 900px to force single column layout always */
+/* @media (min-width: 900px) {
     .dashboard-content {
-        grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+        grid-template-columns: 1fr 1fr;
     }
     .full-width-card {
-        grid-column: 1 / -1; /* Make this card span full width */
+        grid-column: 1 / -1;
     }
-}
+} */
 
 
 .data-table-card .table-container {
@@ -293,8 +294,23 @@ table {
     width: 100%; /* Ensure table takes full width of its container */
     border-collapse: collapse;
     margin-top: 10px;
-    min-width: 500px; /* Adjusted min-width for better fit after column removal */
+    /* Adjusted min-width for better fit on various screens */
+    min-width: 100%; /* Start with 100% and let overflow-x handle it */
 }
+
+/* Responsive table adjustments for smaller screens */
+/* These media queries ensure tables don't force page scroll on small devices */
+@media (max-width: 768px) {
+    table {
+        min-width: 600px; /* Allow horizontal scroll for tables on smaller devices */
+    }
+}
+@media (max-width: 480px) {
+    table {
+        min-width: 500px; /* Further reduce min-width for very small mobile screens */
+    }
+}
+
 
 th, td {
     padding: 12px 15px;
