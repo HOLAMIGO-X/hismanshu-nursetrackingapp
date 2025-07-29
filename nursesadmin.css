@@ -1,0 +1,467 @@
+/* General Body and Font */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* Light gray background */
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Header Styling */
+header {
+    background-color: #2563eb; /* Blue-600 from Tailwind */
+    color: white;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom-left-radius: 0.5rem; /* Rounded corners */
+    border-bottom-right-radius: 0.5rem;
+}
+
+header h1 {
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: 700; /* font-bold */
+}
+
+/* Navigation Tabs */
+#adminNavTabs {
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem; /* space-x-6 */
+    border-radius: 0.5rem; /* Rounded corners */
+    margin: 1rem 1.5rem; /* Add some margin around the tabs */
+}
+
+.nav-tab {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem; /* rounded-md */
+    font-weight: 500; /* font-medium */
+    color: #4b5563; /* text-gray-700 */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.nav-tab:hover {
+    background-color: #f3f4f6; /* hover:bg-gray-100 */
+}
+
+.nav-tab.active {
+    background-color: #eff6ff; /* bg-blue-50 */
+    color: #2563eb; /* text-blue-700 */
+    font-weight: 600;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Main Content Area */
+main {
+    padding: 1.5rem; /* p-6 */
+    flex-grow: 1;
+}
+
+/* Section Styling (for login form, upload, summary, tables, hierarchy) */
+section {
+    background-color: #ffffff;
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem; /* rounded-lg */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem; /* space-y-6 */
+}
+
+/* Login Form Specifics */
+#adminLoginSection {
+    height: calc(100vh - 100px); /* Adjust based on header height */
+    display: flex; /* Ensures centering */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* For vertical centering of the form card */
+}
+
+#adminLoginForm {
+    width: 100%;
+    max-width: 448px; /* max-w-md */
+}
+
+/* Input Fields */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="file"] {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem; /* px-3 py-2 */
+    margin-top: 0.25rem; /* mt-1 */
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 0.375rem; /* rounded-md */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* shadow-sm */
+    font-size: 0.875rem; /* sm:text-sm */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+    outline: none;
+    border-color: #3b82f6; /* focus:border-blue-500 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* focus:ring-blue-500 */
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Specific button styles are mostly handled by Tailwind classes in HTML */
+
+/* Message Styling */
+.message {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.message.error {
+    background-color: #fee2e2; /* bg-red-100 */
+    color: #dc2626; /* text-red-600 */
+    border: 1px solid #fca5a5; /* border-red-300 */
+}
+
+.message.success {
+    background-color: #d1fae5; /* bg-green-100 */
+    color: #059669; /* text-green-600 */
+    border: 1px solid #6ee7b7; /* border-green-300 */
+}
+
+.message.info {
+    background-color: #e0f2fe; /* bg-blue-100 */
+    color: #2563eb; /* text-blue-600 */
+    border: 1px solid #93c5fd; /* border-blue-300 */
+}
+
+/* Summary Cards */
+.grid {
+    display: grid;
+    gap: 1.5rem; /* gap-6 */
+}
+
+@media (min-width: 768px) { /* md breakpoint */
+    .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem 1.5rem; /* px-6 py-3 */
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb; /* divide-gray-200 */
+}
+
+th {
+    background-color: #f9fafb; /* bg-gray-50 */
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 500; /* font-medium */
+    color: #6b7280; /* text-gray-500 */
+    text-transform: uppercase;
+    letter-spacing: 0.05em; /* tracking-wider */
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9fafb; /* Light stripe for readability */
+}
+
+tbody tr:hover {
+    background-color: #f3f4f6; /* Subtle hover effect */
+}
+
+td a {
+    color: #2563eb; /* Blue-600 */
+    text-decoration: none;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
+
+/* Admin Action Column */
+.admin-action-col {
+    width: 1%; /* Make it narrow */
+    white-space: nowrap; /* Prevent wrapping */
+    text-align: center; /* Center buttons */
+}
+
+.action-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 0.25rem;
+    border: none;
+    cursor: pointer;
+    margin: 0 0.2rem;
+    transition: background-color 0.2s ease;
+}
+
+.edit-btn {
+    background-color: #3b82f6; /* Blue-500 */
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #2563eb; /* Blue-600 */
+}
+
+.delete-btn {
+    background-color: #ef4444; /* Red-500 */
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #dc2626; /* Red-600 */
+}
+
+/* --- NEW: Scrollable Table Container --- */
+/* Apply this class to the div that wraps your tables */
+.scrollable-table-container {
+    max-height: 400px; /* Adjust this value as needed to control table height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #e5e7eb; /* Optional: Add a subtle border around the scrollable area */
+    border-radius: 0.5rem; /* Match section border-radius */
+    margin-top: 1rem; /* Add some space above the table if needed */
+}
+/* Ensure table headers are sticky within the scrollable container */
+.scrollable-table-container table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb; /* Ensure header background is visible when sticky */
+    z-index: 10; /* Ensure header is above scrolling content */
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+
+/* Hierarchy Tree */
+#channelHierarchyTree {
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.tree-node {
+    margin-bottom: 0.5rem;
+    border-left: 2px solid #d1d5db; /* Light gray border for hierarchy */
+    padding-left: 0.5rem;
+}
+
+.tree-node-header {
+    background-color: #e0f2fe; /* light blue */
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    color: #1e40af; /* dark blue */
+    transition: background-color 0.2s ease;
+}
+
+.tree-node-header:hover {
+    background-color: #bfdbfe; /* lighter blue on hover */
+}
+
+.tree-node-header .arrow {
+    margin-right: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.tree-node-header.active .arrow {
+    transform: rotate(90deg); /* Rotate arrow when active */
+}
+
+.tree-node-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    padding-left: 1rem; /* Indent content */
+}
+
+.tree-node-content.show {
+    max-height: 500px; /* Adjust as needed for content height */
+    overflow-y: auto; /* Enable scroll if content exceeds max-height */
+}
+
+.tree-node-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.tree-node-content li {
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+
+/* Modal Styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 2rem;
+    border: 1px solid #888;
+    width: 90%; /* Responsive width */
+    max-width: 500px; /* Max width */
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.modal-content p {
+    margin-bottom: 0.75rem;
+    color: #555;
+}
+
+.modal-content .close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-content .close-button:hover,
+.modal-content .close-button:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Specific modal button styling */
+#customAlertModal .close-button {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    float: right; /* Align to right */
+    margin-top: 1rem;
+}
+
+#customAlertModal .close-button:hover {
+    background-color: #1e40af;
+}
+
+#customConfirmModal .flex {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+#customConfirmYes, #customConfirmNo {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    font-weight: 600;
+}
+
+#customConfirmYes {
+    background-color: #dc2626; /* Red-600 */
+    color: white;
+}
+
+#customConfirmYes:hover {
+    background-color: #b91c1c; /* Red-700 */
+}
+
+#customConfirmNo {
+    background-color: #e5e7eb; /* Gray-200 */
+    color: #374151; /* Gray-700 */
+}
+
+#customConfirmNo:hover {
+    background-color: #d1d5db; /* Gray-300 */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+    header h1 {
+        margin-bottom: 0.5rem;
+    }
+    header > div { /* Buttons container */
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 0.5rem;
+    }
+    #adminNavTabs {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1rem;
+    }
+    .nav-tab {
+        width: 100%;
+        text-align: center;
+    }
+    main {
+        padding: 1rem;
+    }
+    section {
+        padding: 1rem;
+    }
+    th, td {
+        padding: 0.5rem 0.75rem;
+    }
+    .admin-action-col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .action-button {
+        width: 100%;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+}

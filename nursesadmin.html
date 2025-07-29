@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nurses Admin Dashboard</title>
+    <!-- Tailwind CSS CDN for basic styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS for layout, tables, and modals -->
+    <link rel="stylesheet" href="nursesadmin.css">
+</head>
+<body class="bg-gray-100 font-inter">
+
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Nurses Tracking Dashboard (Admin)</h1>
+            <div class="flex items-center space-x-4">
+                <span id="loggedInUserStatus" class="font-medium text-sm"></span>
+                <button id="backToNormalViewButton" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-300 ease-in-out">
+                    Back to Normal View
+                </button>
+                <button id="logoutButton" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-300 ease-in-out">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Admin Navigation Tabs -->
+        <nav id="adminNavTabs" class="bg-white shadow-sm py-3 px-4 flex justify-center space-x-6">
+            <button class="nav-tab active py-2 px-4 rounded-md font-medium text-gray-700 hover:bg-gray-100 transition duration-200" data-target="nursesAdminDashboardContent">
+                Nurses Admin Dashboard
+            </button>
+            <button class="nav-tab py-2 px-4 rounded-md font-medium text-gray-700 hover:bg-gray-100 transition duration-200" data-target="consultAdminDashboard">
+                Consultation Admin Dashboard
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow p-6">
+
+            <!-- Admin Login Section -->
+            <section id="adminLoginSection" class="flex justify-center items-center h-full" style="display: none;">
+                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+                    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Admin Login</h2>
+                    <form id="adminLoginForm" class="space-y-4">
+                        <div>
+                            <label for="adminEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="adminEmail" name="adminEmail" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="adminPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="adminPassword" name="adminPassword" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out">
+                            Login
+                        </button>
+                        <p id="adminLoginErrorMessage" class="text-center text-sm mt-4"></p>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Nurses Admin Dashboard Content -->
+            <section id="nursesAdminDashboardContent" class="space-y-6" style="display: none;">
+                <!-- Universal Search Bar -->
+                <div class="bg-white p-4 rounded-lg shadow-md flex items-center space-x-4">
+                    <input type="text" id="universalSearchBar" placeholder="Search across all Nurses data..."
+                        class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <button id="clearUniversalSearchButton" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-sm transition duration-300 ease-in-out">
+                        Clear Search
+                    </button>
+                </div>
+
+                <!-- CSV Upload Section -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Upload Nurses Data</h2>
+                    <p class="text-gray-600 mb-4">Upload the Nurses Login Report CSV file. (Admin Only)</p>
+                    <div class="flex items-center space-x-4 mb-4">
+                        <label class="block">
+                            <span class="sr-only">Choose file</span>
+                            <input type="file" id="nursesCsvFileInput" accept=".csv"
+                                class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-100"/>
+                        </label>
+                        <span id="nursesFileName" class="text-gray-500 text-sm">No file chosen</span>
+                        <button id="uploadNursesCsvButton" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out">
+                            Process Nurses CSV
+                        </button>
+                    </div>
+                    <p id="nursesUploadMessage" class="text-sm"></p>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <h3 class="text-lg font-semibold text-gray-700">Total Unique Clinics Logged In</h3>
+                        <p id="totalClinicsLoggedIn" class="text-4xl font-bold text-blue-600 mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <h3 class="text-lg font-semibold text-gray-700">Total Login Sessions</h3>
+                        <p id="totalLoginSessions" class="text-4xl font-bold text-blue-600 mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <h3 class="text-lg font-semibold text-gray-700">Active Sessions</h3>
+                        <p id="activeSessionsCount" class="text-4xl font-bold text-blue-600 mt-2">0</p>
+                    </div>
+                </div>
+
+                <!-- Clinic-wise Login Table -->
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Clinic-wise Login Activity</h2>
+                        <button class="download-button bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm" data-table-id="clinicLoginTable">Download CSV</button>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="individual-search-bar w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Search Clinic Login Table..." data-table="clinicLoginTable">
+                    </div>
+                    <!-- ADD THIS WRAPPER DIV WITH THE NEW CLASS -->
+                    <div class="scrollable-table-container">
+                        <table id="clinicLoginTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clinic</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logout Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider admin-action-col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Active Sessions Table -->
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Active Sessions</h2>
+                        <button class="download-button bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm" data-table-id="activeSessionsTable">Download CSV</button>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="individual-search-bar w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Search Active Sessions Table..." data-table="activeSessionsTable">
+                    </div>
+                    <!-- ADD THIS WRAPPER DIV WITH THE NEW CLASS -->
+                    <div class="scrollable-table-container">
+                        <table id="activeSessionsTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clinic</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider admin-action-col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Clinic Shift Leaderboard -->
+                <div class="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Clinic Shift Leaderboard</h2>
+                        <div class="flex space-x-2">
+                            <button id="showTopShifts" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm active">Top 5</button>
+                            <button id="showBottomShifts" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm">Bottom 5</button>
+                            <button class="download-button bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm" data-table-id="leaderboardTable">Download CSV</button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="individual-search-bar w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Search Leaderboard..." data-table="leaderboardTable">
+                    </div>
+                    <!-- ADD THIS WRAPPER DIV WITH THE NEW CLASS -->
+                    <div class="scrollable-table-container">
+                        <table id="leaderboardTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clinic</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">First Login</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Shift Duration</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider admin-action-col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Channel & Clinic Hierarchy -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Channel & Clinic Hierarchy</h2>
+                    <div id="channelHierarchyTree" class="space-y-2">
+                        <!-- Hierarchy tree will be built here by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Shift Detail Modal -->
+    <div id="shiftDetail" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-xl font-bold mb-4">Shift Details</h2>
+            <p><strong>Login ID:</strong> <span id="detailLoginId"></span></p>
+            <p><strong>Channel:</strong> <span id="detailChannel"></span></p>
+            <p><strong>Clinic:</strong> <span id="detailClinic"></span></p>
+            <p><strong>Login Time:</strong> <span id="detailLoginTime"></span></p>
+            <p><strong>Logout Time:</strong> <span id="detailLogoutTime"></span></p>
+            <p><strong>Shift Duration:</strong> <span id="detailShiftDuration"></span></p>
+            <p><strong>IP Address:</strong> <span id="detailIpAddress"></span></p>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Notification</h2>
+            <p id="customAlertMessage" class="mb-4"></p>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md close-button">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="customConfirmModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Confirmation</h2>
+            <p id="customConfirmMessage" class="mb-4"></p>
+            <div class="flex justify-end space-x-4">
+                <button id="customConfirmNo" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md shadow-md">
+                    No
+                </button>
+                <button id="customConfirmYes" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md shadow-md">
+                    Yes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Papa Parse CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- Chart.js CDN (if charts are used, though not explicitly in nursesadmin.js for now) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Your main JavaScript file -->
+    <script type="module" src="nursesadmin.js"></script>
+</body>
+</html>

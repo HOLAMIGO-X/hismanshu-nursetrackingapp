@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultations Dashboard</title>
+    <link rel="stylesheet" href="consult.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Consultations Tracking Dashboard</h1>
+            <div class="header-controls">
+                <span id="loggedInUserStatus" class="user-status"></span> <!-- Displays current logged-in user -->
+                <button id="loginAsAdminButton" class="admin-toggle-button" style="display:none;">Login as Admin</button> <!-- Only visible for guests -->
+                <button id="logoutButton" class="logout-button" style="display:none;">Logout</button> <!-- Only visible for authenticated non-admin users -->
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="dashboard-nav">
+            <button class="nav-tab" data-target="nursesDashboard">Nurses Dashboard</button>
+            <button class="nav-tab active" data-target="consultDashboard">Consultation Dashboard</button>
+        </nav>
+
+        <!-- Universal Search Bar -->
+        <section class="search-section card universal-search-section">
+            <h2>Universal Search</h2>
+            <div class="search-input-group">
+                <input type="text" id="universalSearchBar" placeholder="Search across all data..." class="search-input">
+                <button id="clearUniversalSearchButton" class="action-button clear-button">Clear</button>
+            </div>
+        </section>
+
+        <!-- Consultation Dashboard Content (Read-only for normal users) -->
+        <div id="consultDashboard" class="dashboard-section active">
+            <!-- CSV Upload section is NOT present here for normal users -->
+
+            <section class="dashboard-summary">
+                <div class="card summary-card">
+                    <h3>Total Consultations</h3>
+                    <div class="summary-value" id="totalConsultationsToday">0</div>
+                </div>
+            </section>
+
+            <section class="dashboard-content">
+                <!-- Detailed Consultation Records Table -->
+                <div class="card data-table-card full-width-card">
+                    <div class="table-header-with-download">
+                        <h2>Detailed Consultation Records</h2>
+                        <button class="download-button" data-table-id="detailedConsultationTable">Download CSV</button>
+                    </div>
+                    <div class="table-search-group">
+                        <input type="text" class="individual-search-bar" data-table="detailedConsultationTable" placeholder="Search this table...">
+                    </div>
+                    <div class="table-container">
+                        <table id="detailedConsultationTable">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Med Agent</th>
+                                    <th>Employee Code</th>
+                                    <th>Consult Time (mins)</th>
+                                    <th>Docs</th>
+                                    <!-- Admin Actions column is NOT present here for normal users -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Nurse Consultation Leaderboard -->
+                <div class="card data-table-card">
+                    <div class="table-header-with-download">
+                        <h2>Med Agent Consultation Leaderboard (By Count)</h2>
+                        <button class="download-button" data-table-id="nurseConsultationLeaderboardTable">Download CSV</button>
+                    </div>
+                    <div class="table-search-group">
+                        <input type="text" class="individual-search-bar" data-table="nurseConsultationLeaderboardTable" placeholder="Search this table...">
+                    </div>
+                    <div class="leaderboard-controls">
+                        <button id="showTopConsultationAgents" class="leaderboard-button active">Top 5 Agents (Count)</button>
+                        <button id="showBottomConsultationAgents" class="leaderboard-button">Bottom 5 Agents (Count)</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="nurseConsultationLeaderboardTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Med Agent</th>
+                                    <th>Employee Code</th>
+                                    <th>Total Consultations</th>
+                                    <!-- Admin Actions column is NOT present here for normal users -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart Generation for Consultation Data -->
+                <div class="card">
+                    <div class="table-header-with-download">
+                        <h2>Consultation Data Charts</h2>
+                        <button id="expandChartButton" class="action-button">Expand Chart</button>
+                    </div>
+                    <p>Select a dimension and chart type to visualize consultation data.</p>
+                    <div class="chart-controls">
+                        <select id="consultationChartDimension">
+                            <option value="">-- Select Dimension --</option>
+                            <option value="Product">Product</option>
+                            <option value="Region Name">Region Name</option>
+                            <option value="Branch Name">Branch Name</option>
+                            <option value="Med Agent">Med Agent</option>
+                            <option value="Employee Code">Employee Code</option>
+                            <option value="Docs">Docs</option>
+                        </select>
+                        <select id="consultationChartType">
+                            <option value="bar">Bar Chart</option>
+                            <option value="pie">Pie Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="doughnut">Doughnut Chart</option>
+                            <option value="polarArea">Polar Area Chart</option>
+                        </select>
+                        <button id="generateConsultationChart" class="action-button">Generate Chart</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="consultationChartCanvas"></canvas>
+                        <p id="chartMessage" class="message"></p>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </div>
+
+    <!-- Expanded Chart Modal -->
+    <div id="expandedChartModal" class="expanded-chart-modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-expanded-chart-button">×</span>
+            <h3 id="expandedChartTitle"></h3>
+            <div class="expanded-chart-container">
+                <canvas id="expandedConsultationChartCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modals for Alert and Confirm -->
+    <div id="customAlertModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="document.getElementById('customAlertModal').style.display='none';">×</span>
+            <p id="customAlertMessage"></p>
+            <button onclick="document.getElementById('customAlertModal').style.display='none';">OK</button>
+        </div>
+    </div>
+
+    <div id="customConfirmModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" onclick="document.getElementById('customConfirmModal').style.display='none';">×</span>
+            <p id="customConfirmMessage"></p>
+            <button id="customConfirmYes">Yes</button>
+            <button id="customConfirmNo">No</button>
+        </div>
+    </div>
+
+    <!-- Papa Parse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- Chart.js for charting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- consult.js will handle Firebase initialization and Consultation Dashboard logic -->
+    <script type="module" src="consult.js"></script>
+</body>
+</html>
