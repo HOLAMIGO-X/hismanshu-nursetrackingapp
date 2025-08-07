@@ -170,7 +170,7 @@ async function handleAdminLogin(event) {
             message = 'Invalid email format.';
         } else {
             console.error("Firebase Admin Auth Error:", error.message);
-         message = `Login error: ${error.message}`;
+            message = Login error: ${error.message};
         }
         displayMessage(adminLoginErrorMessage, message, 'error');
     }
@@ -508,11 +508,10 @@ function handleDownloadButtonClick(event) {
     const tableId = event.target.dataset.tableId;
     const table = document.getElementById(tableId);
     if (table) {
-        downloadTableAsCsv(table, `${tableId}_data.csv`);
+        downloadTableAsCsv(table, ${tableId}_data.csv);
     } else {
-        console.error(`Table with ID ${tableId} not found for download.`);
-showCustomAlert(`Error: Table with ID ${tableId} not found for download.`);
-        showCustomAlert(`Error: Table with ID ${tableId} not found for download.`);
+        console.error(Table with ID ${tableId} not found for download.);
+        showCustomAlert(Error: Table with ID ${tableId} not found for download.);
     }
 }
 
@@ -596,7 +595,7 @@ async function fetchNursesDataFromFirestore() {
 
     // Nurses Data Listener
     // IMPORTANT CHANGE: Use the dynamic appId here
-    onSnapshot(collection(db, `artifacts/${appId}/public/data/nurses_data`), (snapshot) => {
+    onSnapshot(collection(db, artifacts/${appId}/public/data/nurses_data), (snapshot) => {
         nursesParsedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         filterAndDisplayNursesData(nursesParsedData, universalSearchBar ? universalSearchBar.value : '');
     }, (error) => {
@@ -606,7 +605,12 @@ async function fetchNursesDataFromFirestore() {
 }
 
 // --- Firestore Data Management Functions (Admin Specific) ---
-// NEW CODE - USE THIS
+
+// --- Firestore Data Management Functions (Admin Specific) ---
+
+// Define a safe batch size, well under the 500 document limit
+const BATCH_SIZE = 490;
+
 async function uploadCsvToFirestore(file) {
     if (!isSuperAdmin) {
         showCustomAlert('You are not authorized to upload data.');
@@ -625,7 +629,8 @@ async function uploadCsvToFirestore(file) {
                 return;
             }
 
-            const collectionPath = `artifacts/default-app-id/public/data/nurses_data`;
+            // Correctly use the dynamic appId in the collection path
+            const collectionPath = `artifacts/${appId}/public/data/nurses_data`;
             const collectionRef = collection(db, collectionPath);
 
             try {
@@ -636,11 +641,12 @@ async function uploadCsvToFirestore(file) {
                 for (let i = 0; i < existingDocsSnapshot.docs.length; i += BATCH_SIZE) {
                     const batch = writeBatch(db);
                     const chunk = existingDocsSnapshot.docs.slice(i, i + BATCH_SIZE);
+                    console.log(`Preparing to delete batch ${i / BATCH_SIZE + 1} with ${chunk.length} documents.`);
                     chunk.forEach(d => batch.delete(d.ref));
                     deletePromises.push(batch.commit());
                 }
                 await Promise.all(deletePromises);
-                displayMessage(nursesUploadMessage, `Cleared ${existingDocsSnapshot.docs.length} old records.`, 'info');
+                displayMessage(nursesUploadMessage, `Cleared ${existingDocsSnapshot.docs.length} old records. Starting upload...`, 'info');
 
                 // Step 2: Upload new data in small batches
                 displayMessage(nursesUploadMessage, `Uploading ${data.length} new records...`, 'info');
@@ -648,21 +654,24 @@ async function uploadCsvToFirestore(file) {
                 for (let i = 0; i < data.length; i += BATCH_SIZE) {
                     const batch = writeBatch(db);
                     const chunk = data.slice(i, i + BATCH_SIZE);
+                    console.log(`Preparing to upload batch ${i / BATCH_SIZE + 1} with ${chunk.length} records.`);
                     chunk.forEach(row => {
+                        // Clean row by removing any keys with null, undefined, or empty string values
                         const cleanedRow = Object.fromEntries(
                             Object.entries(row).filter(([, v]) => v !== null && v !== undefined && v !== '')
                         );
+                        // Create a new document reference for each row in the batch
                         batch.set(doc(collectionRef), cleanedRow);
                     });
                     uploadPromises.push(batch.commit());
                 }
                 await Promise.all(uploadPromises);
 
-                displayMessage(nursesUploadMessage, `Successfully uploaded ${data.length} new records.`, 'success');
+                displayMessage(nursesUploadMessage, `Successfully uploaded and processed ${data.length} new records.`, 'success');
 
             } catch (error) {
                 console.error("Error during batch upload:", error);
-                displayMessage(nursesUploadMessage, `Upload failed: ${error.message}.`, 'error');
+                displayMessage(nursesUploadMessage, `Upload failed: ${error.message}. Please check the console.`, 'error');
             }
         },
         error: function(err) {
@@ -671,7 +680,6 @@ async function uploadCsvToFirestore(file) {
         }
     });
 }
-
 async function deleteDocument(collectionName, docId) {
     if (!isSuperAdmin) {
         showCustomAlert('You are not authorized to delete data.');
@@ -1148,9 +1156,3 @@ function downloadTableAsCsv(tableElement, filename) {
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
-
-
-
-
-
-
