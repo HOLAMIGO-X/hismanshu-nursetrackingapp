@@ -596,7 +596,7 @@ async function fetchNursesDataFromFirestore() {
 
     // Nurses Data Listener
     // IMPORTANT CHANGE: Use the dynamic appId here
-    onSnapshot(collection(db, artifacts/${appId}/public/data/nurses_data), (snapshot) => {
+    onSnapshot(collection(db, `artifacts/${appId}/public/data/nurses_data`), (snapshot) => {
         nursesParsedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         filterAndDisplayNursesData(nursesParsedData, universalSearchBar ? universalSearchBar.value : '');
     }, (error) => {
@@ -1148,6 +1148,7 @@ function downloadTableAsCsv(tableElement, filename) {
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
+
 
 
 
