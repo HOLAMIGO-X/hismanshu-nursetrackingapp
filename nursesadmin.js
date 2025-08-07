@@ -508,7 +508,7 @@ function handleDownloadButtonClick(event) {
     const tableId = event.target.dataset.tableId;
     const table = document.getElementById(tableId);
     if (table) {
-        downloadTableAsCsv(table, ${tableId}_data.csv);
+        downloadTableAsCsv(table, `${tableId}_data.csv`);
     } else {
         console.error(Table with ID ${tableId} not found for download.);
         showCustomAlert(Error: Table with ID ${tableId} not found for download.);
@@ -1147,4 +1147,5 @@ function downloadTableAsCsv(tableElement, filename) {
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
+
 
