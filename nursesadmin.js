@@ -170,7 +170,7 @@ async function handleAdminLogin(event) {
             message = 'Invalid email format.';
         } else {
             console.error("Firebase Admin Auth Error:", error.message);
-            message = Login error: ${error.message};
+         message = `Login error: ${error.message}`;
         }
         displayMessage(adminLoginErrorMessage, message, 'error');
     }
@@ -1147,3 +1147,4 @@ function downloadTableAsCsv(tableElement, filename) {
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
+
