@@ -512,7 +512,7 @@ function handleDownloadButtonClick(event) {
     } else {
         console.error(`Table with ID ${tableId} not found for download.`);
 showCustomAlert(`Error: Table with ID ${tableId} not found for download.`);
-        showCustomAlert(Error: Table with ID ${tableId} not found for download.);
+        showCustomAlert(Error: `Table with ID ${tableId} not found for download.`);
     }
 }
 
@@ -1148,6 +1148,7 @@ function downloadTableAsCsv(tableElement, filename) {
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
+
 
 
 
