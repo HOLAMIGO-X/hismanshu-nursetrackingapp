@@ -86,6 +86,9 @@ let customConfirmNo;
 // --- MANDATORY: Get the Canvas-provided __app_id ---
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
+// --- Firestore Batch Size (FIXED) ---
+const BATCH_SIZE = 400; // Firestore write batch limit is 500. Using a safe buffer.
+
 
 // --- Custom Alert/Confirm Modals (replaces browser's alert/confirm) ---
 // These functions are intentionally placed at the top-level scope
@@ -170,7 +173,7 @@ async function handleAdminLogin(event) {
             message = 'Invalid email format.';
         } else {
             console.error("Firebase Admin Auth Error:", error.message);
-            message = `Login error: ${error.message}`;
+         message = `Login error: ${error.message}`;
         }
         displayMessage(adminLoginErrorMessage, message, 'error');
     }
@@ -508,10 +511,10 @@ function handleDownloadButtonClick(event) {
     const tableId = event.target.dataset.tableId;
     const table = document.getElementById(tableId);
     if (table) {
-        downloadTableAsCsv(table, ${tableId}_data.csv);
+        downloadTableAsCsv(table, `${tableId}_data.csv`);
     } else {
-        console.error(Table with ID ${tableId} not found for download.);
-        showCustomAlert(Error: Table with ID ${tableId} not found for download.);
+        console.error(`Table with ID ${tableId} not found for download.`);
+        showCustomAlert(`Error: Table with ID ${tableId} not found for download.`);
     }
 }
 
@@ -595,7 +598,7 @@ async function fetchNursesDataFromFirestore() {
 
     // Nurses Data Listener
     // IMPORTANT CHANGE: Use the dynamic appId here
-    onSnapshot(collection(db, artifacts/${appId}/public/data/nurses_data), (snapshot) => {
+    onSnapshot(collection(db, `artifacts/${appId}/public/data/nurses_data`), (snapshot) => {
         nursesParsedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         filterAndDisplayNursesData(nursesParsedData, universalSearchBar ? universalSearchBar.value : '');
     }, (error) => {
@@ -605,12 +608,7 @@ async function fetchNursesDataFromFirestore() {
 }
 
 // --- Firestore Data Management Functions (Admin Specific) ---
-
-// --- Firestore Data Management Functions (Admin Specific) ---
-
-// Define a safe batch size, well under the 500 document limit
-const BATCH_SIZE = 490;
-
+// REVISED AND FIXED CODE
 async function uploadCsvToFirestore(file) {
     if (!isSuperAdmin) {
         showCustomAlert('You are not authorized to upload data.');
@@ -629,7 +627,7 @@ async function uploadCsvToFirestore(file) {
                 return;
             }
 
-            // Correctly use the dynamic appId in the collection path
+            // FIX: Use the dynamic appId variable for the collection path
             const collectionPath = `artifacts/${appId}/public/data/nurses_data`;
             const collectionRef = collection(db, collectionPath);
 
@@ -638,40 +636,39 @@ async function uploadCsvToFirestore(file) {
                 displayMessage(nursesUploadMessage, 'Clearing existing data...', 'info');
                 const existingDocsSnapshot = await getDocs(query(collectionRef));
                 const deletePromises = [];
+                // FIX: Use the defined BATCH_SIZE to loop through deletions
                 for (let i = 0; i < existingDocsSnapshot.docs.length; i += BATCH_SIZE) {
                     const batch = writeBatch(db);
                     const chunk = existingDocsSnapshot.docs.slice(i, i + BATCH_SIZE);
-                    console.log(`Preparing to delete batch ${i / BATCH_SIZE + 1} with ${chunk.length} documents.`);
                     chunk.forEach(d => batch.delete(d.ref));
                     deletePromises.push(batch.commit());
                 }
                 await Promise.all(deletePromises);
-                displayMessage(nursesUploadMessage, `Cleared ${existingDocsSnapshot.docs.length} old records. Starting upload...`, 'info');
+                displayMessage(nursesUploadMessage, `Cleared ${existingDocsSnapshot.docs.length} old records.`, 'info');
 
                 // Step 2: Upload new data in small batches
                 displayMessage(nursesUploadMessage, `Uploading ${data.length} new records...`, 'info');
                 const uploadPromises = [];
+                 // FIX: Use the defined BATCH_SIZE to loop through uploads
                 for (let i = 0; i < data.length; i += BATCH_SIZE) {
                     const batch = writeBatch(db);
                     const chunk = data.slice(i, i + BATCH_SIZE);
-                    console.log(`Preparing to upload batch ${i / BATCH_SIZE + 1} with ${chunk.length} records.`);
                     chunk.forEach(row => {
-                        // Clean row by removing any keys with null, undefined, or empty string values
                         const cleanedRow = Object.fromEntries(
                             Object.entries(row).filter(([, v]) => v !== null && v !== undefined && v !== '')
                         );
-                        // Create a new document reference for each row in the batch
+                        // Use doc() with collectionRef to create a new doc with an auto-ID
                         batch.set(doc(collectionRef), cleanedRow);
                     });
                     uploadPromises.push(batch.commit());
                 }
                 await Promise.all(uploadPromises);
 
-                displayMessage(nursesUploadMessage, `Successfully uploaded and processed ${data.length} new records.`, 'success');
+                displayMessage(nursesUploadMessage, `Successfully uploaded ${data.length} new records.`, 'success');
 
             } catch (error) {
                 console.error("Error during batch upload:", error);
-                displayMessage(nursesUploadMessage, `Upload failed: ${error.message}. Please check the console.`, 'error');
+                displayMessage(nursesUploadMessage, `Upload failed: ${error.message}.`, 'error');
             }
         },
         error: function(err) {
@@ -680,13 +677,14 @@ async function uploadCsvToFirestore(file) {
         }
     });
 }
+
 async function deleteDocument(collectionName, docId) {
     if (!isSuperAdmin) {
         showCustomAlert('You are not authorized to delete data.');
         return;
     }
     try {
-        await deleteDoc(doc(db, artifacts/${appId}/public/data/${collectionName}, docId));
+        await deleteDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId));
         showCustomAlert('Record deleted successfully!');
         // onSnapshot listener will automatically update the UI
     } catch (error) {
@@ -702,7 +700,7 @@ async function editDocument(collectionName, docId, newData) {
     }
     try {
         // Use updateDoc to merge new data with existing, or setDoc with merge: true
-        await updateDoc(doc(db, artifacts/${appId}/public/data/${collectionName}, docId), newData);
+        await updateDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId), newData);
         showCustomAlert('Record updated successfully!');
         // onSnapshot listener will automatically update the UI
     } catch (error) {
@@ -718,12 +716,12 @@ function updateUIForUserStatus() {
     // The main content visibility (login form vs dashboard) is handled by onAuthStateChanged
     if (loggedInUserStatusSpan) {
         if (currentUserEmail) { // Authenticated user (admin or non-admin)
-            loggedInUserStatusSpan.textContent = Logged in: ${currentUserEmail};
+            loggedInUserStatusSpan.textContent = `Logged in: ${currentUserEmail}`;
             loggedInUserStatusSpan.style.display = 'inline-block';
             if (logoutButton) logoutButton.style.display = 'inline-block';
             // Assuming loginAsAdminButton is not present on admin pages, or hidden by CSS
         } else if (auth.currentUser && auth.currentUser.isAnonymous) { // Anonymous user (guest)
-            loggedInUserStatusSpan.textContent = Logged in: Guest;
+            loggedInUserStatusSpan.textContent = `Logged in: Guest`;
             loggedInUserStatusSpan.style.display = 'inline-block';
             if (logoutButton) logoutButton.style.display = 'none'; // Guests don't explicitly "logout"
         } else { // No user (initial state before anonymous sign-in completes)
@@ -793,7 +791,7 @@ function renderClinicLoginTable(data) {
 
     if (filteredData.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = <td colspan="5" style="text-align: center; color: #777;">No data available or matches your search.</td>; // Adjusted colspan for admin view
+        tr.innerHTML = `<td colspan="5" style="text-align: center; color: #777;">No data available or matches your search.</td>`; // Adjusted colspan for admin view
         clinicLoginTableBody.appendChild(tr);
         return;
     }
@@ -870,7 +868,7 @@ function renderActiveSessionsTable(data) {
 
     if (activeSessions.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = <td colspan="6" style="text-align: center; color: #777;">No active sessions found (all logged out or no login time).</td>; // Adjusted colspan for admin view
+        tr.innerHTML = `<td colspan="6" style="text-align: center; color: #777;">No active sessions found (all logged out or no login time).</td>`; // Adjusted colspan for admin view
         activeSessionsTableBody.appendChild(tr);
         return;
     }
@@ -908,7 +906,7 @@ function renderLeaderboard(data, type = 'top') {
         if (loginTime && logoutTime && !isNaN(loginTime) && !isNaN(logoutTime)) {
             const duration = logoutTime - loginTime;
             if (duration > 0) {
-                const key = ${row.Clinic}-${row.login_id};
+                const key = `${row.Clinic}-${row.login_id}`;
                 if (!clinicShiftTimes[key]) {
                     clinicShiftTimes[key] = {
                         id: row.id, // Store one ID, though this is aggregated data
@@ -931,7 +929,7 @@ function renderLeaderboard(data, type = 'top') {
 
     if (sortedClinics.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = <td colspan="6" style="text-align: center; color: #777;">No completed shift data for leaderboard.</td>; // Adjusted colspan for admin view
+        tr.innerHTML = `<td colspan="6" style="text-align: center; color: #777;">No completed shift data for leaderboard.</td>`; // Adjusted colspan for admin view
         leaderboardTableBody.appendChild(tr);
         return;
     }
@@ -1002,7 +1000,7 @@ function renderChannelHierarchyTree(data) {
 
         const channelHeader = document.createElement('div');
         channelHeader.classList.add('tree-node-header');
-        channelHeader.innerHTML = <span class="arrow">▶</span> <span>Channel: <strong>${channelName}</strong> (${Object.keys(channelsData[channelName]).length} Clinics)</span>;
+        channelHeader.innerHTML = `<span class="arrow">▶</span> <span>Channel: <strong>${channelName}</strong> (${Object.keys(channelsData[channelName]).length} Clinics)</span>`;
         channelNode.appendChild(channelHeader);
 
         const channelContent = document.createElement('div');
@@ -1021,7 +1019,7 @@ function renderChannelHierarchyTree(data) {
 
                 const clinicHeader = document.createElement('div');
                 clinicHeader.classList.add('tree-node-header');
-                clinicHeader.innerHTML = <span class="arrow">▶</span> <span>Clinic: <strong>${clinicName}</strong> (${channelsData[channelName][clinicName].size} Login IDs)</span>;
+                clinicHeader.innerHTML = `<span class="arrow">▶</span> <span>Clinic: <strong>${clinicName}</strong> (${channelsData[channelName][clinicName].size} Login IDs)</span>`;
                 clinicNode.appendChild(clinicHeader);
 
                 const clinicContent = document.createElement('div');
@@ -1045,7 +1043,7 @@ function renderChannelHierarchyTree(data) {
                             })
                             .reduce((sum, duration) => sum + duration, 0);
 
-                        listItem.innerHTML = <strong>${loginId}</strong> (Total Shift: ${formatDuration(totalDurationMillis)});
+                        listItem.innerHTML = `<strong>${loginId}</strong> (Total Shift: ${formatDuration(totalDurationMillis)})`;
                         loginIdList.appendChild(listItem);
                     });
                 }
@@ -1070,8 +1068,8 @@ function generateLocationLink(latLongString) {
                 const lat = parseFloat(latLong.latitude);
                 const long = parseFloat(latLong.longitude);
                 if (!isNaN(lat) && !isNaN(long)) {
-                    const googleMapsUrl = https://www.google.com/maps/search/?api=1&query=${lat},${long};
-                    return <a href="${googleMapsUrl}" target="_blank">View on Map</a>;
+                    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${long}`;
+                    return `<a href="${googleMapsUrl}" target="_blank">View on Map</a>`;
                 }
             }
         }
@@ -1088,7 +1086,7 @@ function formatDuration(millis) {
     const hours = Math.floor(millis / (1000 * 60 * 60));
     const minutes = Math.floor((millis % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((millis % (1000 * 60)) / 1000);
-    return ${hours}h ${minutes}m ${seconds}s;
+    return `${hours}h ${minutes}m ${seconds}s`;
 }
 
 function filterTableData(data, searchTerm, columnsToSearch) {
@@ -1131,7 +1129,7 @@ function downloadTableAsCsv(tableElement, filename) {
             }
             // Handle commas and newlines in cell data for CSV
             if (cellData.includes(',') || cellData.includes('\n') || cellData.includes('"')) {
-                cellData = "${cellData.replace(/"/g, '""')}"; // Escape double quotes and wrap in quotes
+                cellData = `"${cellData.replace(/"/g, '""')}"`; // Escape double quotes and wrap in quotes
             }
             rowData.push(cellData);
         }
@@ -1156,4 +1154,3 @@ function downloadTableAsCsv(tableElement, filename) {
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
-
